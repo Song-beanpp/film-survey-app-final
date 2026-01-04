@@ -209,28 +209,9 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Start server
-connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`\n${'='.repeat(60)}`);
-        console.log(`🎬 Film Title Translation Survey Server`);
-        console.log(`${'='.repeat(60)}`);
-        console.log(`\n📋 Survey URL: http://localhost:${PORT}`);
-        console.log(`📊 Admin Panel: http://localhost:${PORT}/admin.html`);
-        console.log(`📥 Export CSV: http://localhost:${PORT}/api/export/csv`);
-        console.log(`💚 Health Check: http://localhost:${PORT}/api/health`);
-        console.log(`\n💾 Database: ${responsesCollection ? 'MongoDB Cloud' : 'Local JSON'}`);
-        console.log(`\nPress Ctrl+C to stop the server`);
-        console.log(`${'='.repeat(60)}\n`);
-    });
-});
+// Initialize MongoDB connection
+connectDB();
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-    console.log('\n\n👋 Shutting down gracefully...');
-    if (client) {
-        await client.close();
-        console.log('✅ MongoDB connection closed');
-    }
-    process.exit(0);
-});
+// Export the Express app for Vercel
+module.exports = app;
+
