@@ -35,9 +35,17 @@ const client = new MongoClient(uri, {
 
 let db;
 let responsesCollection;
+let isConnecting = false;
+let isConnected = false;
 
-// Connect to MongoDB
+// Connect to MongoDB with connection state management
 async function connectDB() {
+    // If already connected or connecting, return
+    if (isConnected || isConnecting) {
+        return isConnected;
+    }
+
+    isConnecting = true;
     try {
         await client.connect();
         console.log('✅ Connected to MongoDB successfully!');
@@ -49,9 +57,16 @@ async function connectDB() {
         await responsesCollection.createIndex({ timestamp: -1 });
         await responsesCollection.createIndex({ id: 1 }, { unique: true });
 
+        isConnected = true;
+        isConnecting = false;
+        return true;
+
     } catch (error) {
         console.error('❌ MongoDB connection error:', error);
         console.log('⚠️  Falling back to local JSON storage');
+        isConnecting = false;
+        isConnected = false;
+        return false;
     }
 }
 
@@ -212,16 +227,21 @@ app.get('/api/export/csv', async (req, res) => {
 });
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+    // Try to connect if not connected
+    if (!isConnected) {
+        await connectDB();
+    }
+
     res.json({
         status: 'ok',
-        mongodb: responsesCollection ? 'connected' : 'disconnected',
+        mongodb: isConnected && responsesCollection ? 'connected' : 'disconnected',
         timestamp: new Date().toISOString()
     });
 });
 
-// Initialize MongoDB connection
-connectDB();
+// Initialize MongoDB connection (async, don't wait)
+connectDB().catch(err => console.error('Initial connection failed:', err));
 
 // Export the Express app for Vercel
 module.exports = app;
