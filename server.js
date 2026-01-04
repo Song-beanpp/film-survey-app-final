@@ -40,14 +40,31 @@ let isConnected = false;
 
 // Connect to MongoDB with connection state management
 async function connectDB() {
-    // If already connected or connecting, return
-    if (isConnected || isConnecting) {
-        return isConnected;
+    // If already connected, return
+    if (isConnected) {
+        return true;
+    }
+
+    // If stuck connecting, reset after check
+    if (isConnecting) {
+        console.log('⏳ Connection already in progress, skipping...');
+        return false;
     }
 
     isConnecting = true;
+    console.log('🔄 Attempting MongoDB connection...');
+
+    // Set timeout to reset stuck state
+    const timeout = setTimeout(() => {
+        if (isConnecting) {
+            console.log('⏰ Connection timeout - resetting');
+            isConnecting = false;
+        }
+    }, 50000); // 50 second timeout
+
     try {
         await client.connect();
+        clearTimeout(timeout);
         console.log('✅ Connected to MongoDB successfully!');
 
         db = client.db('film-survey');
@@ -62,7 +79,8 @@ async function connectDB() {
         return true;
 
     } catch (error) {
-        console.error('❌ MongoDB connection error:', error);
+        clearTimeout(timeout);
+        console.error('❌ MongoDB connection error:', error.name, error.message);
         console.log('⚠️  Falling back to local JSON storage');
         isConnecting = false;
         isConnected = false;
