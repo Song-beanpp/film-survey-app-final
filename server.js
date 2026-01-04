@@ -226,6 +226,23 @@ app.get('/api/export/csv', async (req, res) => {
     }
 });
 
+// Debug endpoint
+app.get('/api/debug-env', (req, res) => {
+    res.json({
+        hasMongoUri: !!process.env.MONGODB_URI,
+        uriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0,
+        uriStart: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 30) + '...' : 'NOT SET',
+        isVercel: !!process.env.VERCEL,
+        nodeEnv: process.env.NODE_ENV,
+        vercelEnv: process.env.VERCEL_ENV,
+        isConnected,
+        isConnecting,
+        hasClient: !!client,
+        hasDb: !!db,
+        hasCollection: !!responsesCollection
+    });
+});
+
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
     // Try to connect if not connected
