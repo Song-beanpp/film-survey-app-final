@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英中电影片名翻译接受度研究 | Film Title Translation Survey</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+
+        <!-- Survey Form -->
+        <form id="surveyForm">
+            <!-- SECTION 1: Introduction & Consent -->
+            <section class="survey-section active" data-section="1">
+                <div class="section-header">
+                    <h1 class="form-title">英中电影片名翻译接受度研究</h1>
+                    <h2 class="form-subtitle">The Influence of Cultural Translation Strategies in Film Titles on Chinese-English Bilinguals' Interpretation of Cultural Meaning</h2>
+                </div>
+                
+                <div class="section-content">
+                    <p><strong>Dear participant,</strong></p>
+                    <p>My name is <strong>He Yanzheng</strong>, a final year student pursuing a Bachelor's Degree in English Language and Linguistics from the Department of English, Faculty of Modern Languages and Communication, Universiti Putra Malaysia (UPM). I am currently conducting research on how cultural translation strategies in English-to-Chinese film titles influence Chinese-English bilinguals' interpretation of cultural meaning as part of my Bachelor Dissertation (BBI4959B).</p>
+                    
+                    <div class="info-box">
+                        <h3>📋 This questionnaire consists of 3 sections:</h3>
+                        <ul>
+                            <li><strong>Section A</strong> - Background information and participant screening</li>
+                            <li><strong>Section B</strong> - Evaluation of 5 Hollywood film title translations (Zootopia, Coco, Green Book, Soul, Free Guy)</li>
+                            <li><strong>Section C</strong> - Overall reflection on translation patterns and criteria</li>
+                        </ul>
+                    </div>
+
+                    <p>⏱️ This survey will take no more than <strong>20-25 minutes</strong> of your time. Please read each statement carefully and answer honestly. There are no right or wrong answers.</p>
+
+                    <div class="info-box">
+                        <h3>✅ You are invited to take part in this study if you are:</h3>
+                        <ul>
+                            <li>A Chinese-English bilingual with Chinese as your native language</li>
+                            <li>Someone who received primary and secondary education in China</li>
+                            <li>Holding advanced English proficiency (CET-6, IELTS 6.5+, TOEFL 90+, TEM-4/8, or equivalent)</li>
+                            <li>Someone who has watched at least one of the five selected films completely</li>
+                        </ul>
+                    </div>
+
+                    <p><em>Your participation is voluntary and you may withdraw at any point without any consequences. All responses will be handled with strict confidentiality and used solely for academic purposes.</em></p>
+
+                    <div class="question">
+                        <label class="required">知情同意 | Informed Consent</label>
+                        <p class="question-desc">我已阅读并理解上述说明,自愿参与本研究。<br>I have read and understood the above information and voluntarily agree to participate in this study.</p>
+                        <div class="radio-group">
+                            <label><input type="radio" name="consent" value="yes" required> 是,我同意参与 | Yes, I agree to participate</label>
+                            <label><input type="radio" name="consent" value="no"> 否,我不同意 | No, I do not agree</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-next" onclick="nextSection()">下一步 | Next →</button>
+            </section>
+
+            <!-- SECTION 2: Background Information -->
+            <section class="survey-section" data-section="2">
+                <div class="section-header">
+                    <h2>第一部分:背景信息 | Part 1: Background Information</h2>
+                    <p>请提供您的基本信息。以下问题用于确认您符合本研究的参与条件。</p>
+                </div>
+
+                <div class="section-content">
+                    <div class="question">
+                        <label class="required">您的母语是什么? | What is your native language?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="nativeLanguage" value="chinese" required> 中文(普通话/粤语等) | Chinese (Mandarin/Cantonese, etc.)</label>
+                            <label><input type="radio" name="nativeLanguage" value="english"> 英语 | English</label>
+                            <label><input type="radio" name="nativeLanguage" value="other"> 其他语言 | Other languages</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label class="required">您接受中小学教育的地区? | Where did you receive your primary and secondary education?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="education" value="mainland" required> 中国大陆 | Mainland China</label>
+                            <label><input type="radio" name="education" value="hongkong"> 香港 | Hong Kong</label>
+                            <label><input type="radio" name="education" value="taiwan"> 台湾 | Taiwan</label>
+                            <label><input type="radio" name="education" value="chinese-other"> 其他华语地区 | Other Chinese-speaking regions</label>
+                            <label><input type="radio" name="education" value="non-chinese"> 非华语地区 | Non-Chinese-speaking regions</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label class="required">您的英语水平 | English Proficiency Level</label>
+                        <p class="question-desc">请选择最能代表您英语水平的证书或测试成绩(可多选):</p>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="englishLevel" value="cet6"> 大学英语六级(CET-6)通过 | Passed CET-6</label>
+                            <label><input type="checkbox" name="englishLevel" value="ielts"> 雅思(IELTS)6.5分及以上 | IELTS 6.5 or above</label>
+                            <label><input type="checkbox" name="englishLevel" value="toefl"> 托福(TOEFL)90分及以上 | TOEFL 90 or above</label>
+                            <label><input type="checkbox" name="englishLevel" value="tem"> 英语专业四级/八级(TEM-4/8) | TEM-4/TEM-8</label>
+                            <label><input type="checkbox" name="englishLevel" value="cambridge"> 剑桥英语高级(CAE/CPE) | Cambridge Advanced English (CAE/CPE)</label>
+                            <label><input type="checkbox" name="englishLevel" value="other-cert"> 其他同等水平证明 | Other equivalent qualifications</label>
+                            <label><input type="checkbox" name="englishLevel" value="none"> 以上均不符合 | None of the above</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label class="required">您的年龄段 | Age Group</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="age" value="18-25" required> 18-25岁 | 18-25 years old</label>
+                            <label><input type="radio" name="age" value="26-35"> 26-35岁 | 26-35 years old</label>
+                            <label><input type="radio" name="age" value="36-45"> 36-45岁 | 36-45 years old</label>
+                            <label><input type="radio" name="age" value="46+"> 46岁及以上 | 46 and above</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label class="required">您观看好莱坞电影的频率 | Frequency of Watching Hollywood Films</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="frequency" value="1" required> 1 - 很少(每年少于5部) | Rarely (Less than 5 films per year)</label>
+                            <label><input type="radio" name="frequency" value="2"> 2 - 偶尔(每年5-10部) | Occasionally (5-10 films per year)</label>
+                            <label><input type="radio" name="frequency" value="3"> 3 - 有时(每年11-20部) | Sometimes (11-20 films per year)</label>
+                            <label><input type="radio" name="frequency" value="4"> 4 - 经常(每年21-30部) | Often (21-30 films per year)</label>
+                            <label><input type="radio" name="frequency" value="5"> 5 - 非常频繁(每年超过30部) | Very frequently (More than 30 films per year)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label class="required">【筛选问题】您完整观看过以下哪些电影? | Which of the following films have you watched COMPLETELY?</label>
+                        <p class="question-desc">请勾选所有您已完整观看过的电影(从头到尾看完,而非仅看过片段或预告片)。</p>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="watchedFilms" value="zootopia"> Zootopia《疯狂动物城》(2016)</label>
+                            <label><input type="checkbox" name="watchedFilms" value="coco"> Coco《寻梦环游记》(2017)</label>
+                            <label><input type="checkbox" name="watchedFilms" value="greenbook"> Green Book《绿皮书》(2018)</label>
+                            <label><input type="checkbox" name="watchedFilms" value="soul"> Soul《心灵奇旅》(2020)</label>
+                            <label><input type="checkbox" name="watchedFilms" value="freeguy"> Free Guy《失控玩家》(2021)</label>
+                            <label><input type="checkbox" name="watchedFilms" value="none"> 以上均未完整观看 | I have not watched any of these films completely</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-prev" onclick="prevSection()">← 上一步 | Previous</button>
+                    <button type="button" class="btn btn-next" onclick="nextSection()">下一步 | Next →</button>
+                </div>
+            </section>
+
+            <!-- Film Evaluation Sections (3-7) will be dynamically generated -->
+            <div id="filmSections"></div>
+
+            <!-- SECTION 8: Overall Reflection -->
+            <section class="survey-section" data-section="8">
+                <div class="section-header">
+                    <h2>第二部分:总体反思 | Part 2: Overall Reflection</h2>
+                    <p>请根据您对以上电影片名的评价,回答以下综合性问题。</p>
+                </div>
+
+                <div class="section-content">
+                    <div class="question">
+                        <label>在评价这些电影片名时,您是否注意到某些翻译模式或规律?</label>
+                        <p class="question-desc">Did you notice any translation patterns or trends across these film titles?</p>
+                        <textarea name="patterns" rows="5" placeholder="例如:某些类型的片名倾向于采用特定的翻译策略..."></textarea>
+                    </div>
+
+                    <div class="question">
+                        <label>您认为什么样的标准构成一个"好的"电影片名翻译?</label>
+                        <p class="question-desc">What criteria do you believe constitute a "good" film title translation?</p>
+                        <textarea name="criteria" rows="5" placeholder="请列举您认为重要的因素(如准确性、吸引力、文化适应性等)..."></textarea>
+                    </div>
+
+                    <div class="question">
+                        <label>您对电影片名翻译还有其他观察、评论或建议吗?</label>
+                        <p class="question-desc">Do you have any additional observations, comments, or suggestions?</p>
+                        <textarea name="additionalComments" rows="5" placeholder="其他观察或建议..."></textarea>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-prev" onclick="prevSection()">← 上一步 | Previous</button>
+                    <button type="button" class="btn btn-next" onclick="nextSection()">下一步 | Next →</button>
+                </div>
+            </section>
+
+            <!-- SECTION 9: Pilot Feedback -->
+            <section class="survey-section" data-section="9">
+                <div class="section-header">
+                    <h2>试测反馈 | Pilot Study Feedback</h2>
+                    <p>以下问题用于改进本问卷设计。您的反馈对我们非常重要!</p>
+                </div>
+
+                <div class="section-content">
+                    <div class="question">
+                        <label class="required">问卷的说明和指示是否清晰易懂?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="clarity" value="5" required> 非常清晰 | Very clear</label>
+                            <label><input type="radio" name="clarity" value="4"> 比较清晰 | Somewhat clear</label>
+                            <label><input type="radio" name="clarity" value="3"> 一般 | Neutral</label>
+                            <label><input type="radio" name="clarity" value="2"> 不太清晰 | Not very clear</label>
+                            <label><input type="radio" name="clarity" value="1"> 很不清晰 | Very unclear</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label class="required">您在填写问卷时是否遇到任何技术问题?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="technicalIssues" value="none" required> 没有任何问题 | No issues at all</label>
+                            <label><input type="radio" name="technicalIssues" value="minor"> 有一些小问题,但不影响完成 | Some minor issues</label>
+                            <label><input type="radio" name="technicalIssues" value="major"> 有较大问题,影响了填写体验 | Significant issues</label>
+                        </div>
+                        <textarea name="technicalDetails" rows="3" placeholder="如有问题,请具体说明..."></textarea>
+                    </div>
+
+                    <div class="question">
+                        <label class="required">完成本问卷大约花费了您多少时间?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="timeSpent" value="<15" required> 少于15分钟 | Less than 15 minutes</label>
+                            <label><input type="radio" name="timeSpent" value="15-20"> 15-20分钟 | 15-20 minutes</label>
+                            <label><input type="radio" name="timeSpent" value="20-25"> 20-25分钟 | 20-25 minutes</label>
+                            <label><input type="radio" name="timeSpent" value="25-30"> 25-30分钟 | 25-30 minutes</label>
+                            <label><input type="radio" name="timeSpent" value=">30"> 超过30分钟 | More than 30 minutes</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label class="required">问卷的长度是否合适?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="length" value="short" required> 太短 | Too short</label>
+                            <label><input type="radio" name="length" value="appropriate"> 合适 | Appropriate</label>
+                            <label><input type="radio" name="length" value="long"> 太长 | Too long</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>您对本问卷有什么改进建议?</label>
+                        <textarea name="suggestions" rows="5" placeholder="例如:题目措辞、题目数量、问卷结构、技术设计等方面的建议..."></textarea>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-prev" onclick="prevSection()">← 上一步 | Previous</button>
+                    <button type="submit" class="btn btn-submit">提交问卷 | Submit Survey</button>
+                </div>
+            </section>
+
+            <!-- Thank You Section -->
+            <section class="survey-section" data-section="10" style="display:none;">
+                <div class="section-header">
+                    <h2>🎉 感谢您的参与! | Thank You for Your Participation!</h2>
+                </div>
+
+                <div class="section-content thank-you">
+                    <p>感谢您完成本问卷!您的宝贵意见将为电影片名翻译的学术研究提供重要数据支持。</p>
+                    <p><em>Thank you for completing this questionnaire! Your valuable input will provide important data support for academic research on film title translation.</em></p>
+
+                    <div class="info-box">
+                        <h3>📧 研究联系方式 | Research Contact:</h3>
+                        <p>如果您对本研究有任何疑问,或希望在研究完成后了解研究结果,请联系:<br>
+                        研究者 | Researcher: He Yanzheng<br>
+                        邮箱 | Email: [your.email@example.com]<br>
+                        所属机构 | Institution: Universiti Putra Malaysia (UPM)</p>
+                    </div>
+
+                    <p class="highlight">再次感谢您的时间和支持!<br>Thank you again for your time and support!</p>
+                </div>
+            </section>
+
+            <!-- Disqualification Section -->
+            <section class="survey-section" data-section="11" style="display:none;">
+                <div class="section-header">
+                    <h2>感谢您的关注 | Thank You for Your Interest</h2>
+                </div>
+
+                <div class="section-content thank-you">
+                    <p>非常感谢您对本研究的关注!</p>
+                    <p>根据您提供的信息,您暂时不符合本研究的参与条件(本研究需要母语为中文且在中国接受过教育的参与者)。</p>
+                    <p>我们非常感谢您愿意抽出时间了解本研究。</p>
+                    <br>
+                    <p><em>Thank you very much for your interest in this study! Based on the information you provided, you do not currently meet the participation criteria for this study. We greatly appreciate your willingness to take the time to learn about this research.</em></p>
+                </div>
+            </section>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
