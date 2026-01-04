@@ -14,6 +14,8 @@ app.use(express.static('public'));
 
 // MongoDB connection
 const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+console.log('🔍 MONGODB_URI loaded:', uri ? `${uri.substring(0, 25)}...` : 'NOT FOUND');
+console.log('🔍 Environment check:', process.env.MONGODB_URI ? 'EXISTS' : 'MISSING');
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
