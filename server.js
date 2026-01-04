@@ -26,7 +26,11 @@ const client = new MongoClient(uri, {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    }
+    },
+    // Increase timeouts for MongoDB Free Tier (M0) cold starts
+    connectTimeoutMS: 60000,    // 60 seconds instead of default 30s
+    socketTimeoutMS: 60000,      // 60 seconds for socket operations
+    serverSelectionTimeoutMS: 60000  // 60 seconds to select a server
 });
 
 let db;
