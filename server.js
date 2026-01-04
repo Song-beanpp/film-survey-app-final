@@ -2,7 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { MongoClient, ServerApiVersion } = require('mongodb');
-require('dotenv').config();
+
+// Only load .env file in local development (not on Vercel)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    require('dotenv').config();
+    console.log('📁 Loaded .env file for local development');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
