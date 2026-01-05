@@ -6,10 +6,10 @@ let watchedFilms = [];
 // Film data
 const films = [
     { id: 'zootopia', english: 'Zootopia', chinese: '疯狂动物城', year: '2016', section: 3 },
-    { id: 'coco', english: 'Coco', chinese: '寻梦环游记', year: '2017', section: 4 },
-    { id: 'greenbook', english: 'Green Book', chinese: '绿皮书', year: '2018', section: 5 },
-    { id: 'soul', english: 'Soul', chinese: '心灵奇旅', year: '2020', section: 6 },
-    { id: 'freeguy', english: 'Free Guy', chinese: '失控玩家', year: '2021', section: 7 }
+    { id: 'frozen2', english: 'Frozen II', chinese: '冰雪奇缘2', year: '2019', section: 4 },
+    { id: 'mulan', english: 'Mulan', chinese: '花木兰', year: '2020', section: 5 },
+    { id: 'greenbook', english: 'Green Book', chinese: '绿皮书', year: '2019', section: 6 },
+    { id: 'kungfupanda3', english: 'Kung Fu Panda 3', chinese: '功夫熊猫3', year: '2016', section: 7 }
 ];
 
 // Initialize on page load
@@ -192,6 +192,16 @@ function nextSection() {
         if (education && education.value === 'non-chinese') {
             showSection(11); // Disqualification
             return;
+        }
+
+        // Check minimum films watched (new Q7)
+        const filmsWatchedCount = document.querySelector('input[name="filmsWatchedCount"]:checked');
+        if (filmsWatchedCount) {
+            const count = parseInt(filmsWatchedCount.value);
+            if (count < 3) {
+                showSection(11); // Disqualification
+                return;
+            }
         }
     }
 
