@@ -116,10 +116,24 @@ app.get('/api/responses', async (req, res) => {
 // Submit new response
 app.post('/api/submit', async (req, res) => {
     try {
-        // Ensure MongoDB connection before saving
-        if (!isConnected) {
-            console.log('🔄 MongoDB not connected, attempting to connect...');
-            await connectDB();
+        console.log('📥 Received submission request');
+
+        // Ensure MongoDB connection before saving - with retry
+        let connectionAttempts = 0;
+        const maxAttempts = 3;
+
+        while (!isConnected && connectionAttempts < maxAttempts) {
+            connectionAttempts++;
+            console.log(`🔄 Attempt ${connectionAttempts}: Connecting to MongoDB...`);
+            const connected = await connectDB();
+            if (connected) {
+                console.log('✅ MongoDB connection established');
+                break;
+            }
+            // Wait a bit before retry
+            if (connectionAttempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
         }
 
         const newResponse = {
@@ -128,42 +142,33 @@ app.post('/api/submit', async (req, res) => {
             ...req.body
         };
 
-        if (responsesCollection) {
+        // Check if we have MongoDB connection
+        if (isConnected && responsesCollection) {
             // Save to MongoDB
-            console.log(`📝 Attempting to save response to MongoDB (ID: ${newResponse.id})`);
-            await responsesCollection.insertOne(newResponse);
-            console.log(`✅ New response saved to MongoDB (ID: ${newResponse.id})`);
+            console.log(`📝 Saving response to MongoDB (ID: ${newResponse.id})`);
+            const result = await responsesCollection.insertOne(newResponse);
+            console.log(`✅ Response saved to MongoDB (ID: ${newResponse.id}, MongoDB ID: ${result.insertedId})`);
+
+            res.json({
+                success: true,
+                message: '问卷提交成功！感谢您的参与！\nThank you for your participation!',
+                saved: 'mongodb'
+            });
         } else {
-            // Fallback to JSON file
-            console.log('⚠️  MongoDB not available, using JSON fallback');
-            const fs = require('fs').promises;
-            const path = require('path');
-            const dataFile = path.join(__dirname, 'survey-responses.json');
-
-            let surveyData = { responses: [] };
-            try {
-                const data = await fs.readFile(dataFile, 'utf8');
-                surveyData = JSON.parse(data);
-            } catch {
-                // File doesn't exist, use empty array
-            }
-
-            surveyData.responses.push(newResponse);
-            await fs.writeFile(dataFile, JSON.stringify(surveyData, null, 2));
-            console.log(`✅ New response saved to JSON (ID: ${newResponse.id})`);
+            // MongoDB not available - this will fail in Vercel
+            console.error('❌ MongoDB not connected and JSON fallback not available in Vercel');
+            throw new Error('Database connection unavailable');
         }
-
-        res.json({
-            success: true,
-            message: '问卷提交成功！感谢您的参与！\nThank you for your participation!'
-        });
 
     } catch (error) {
         console.error('❌ Error saving response:', error.name, error.message);
         console.error('   Full error:', error);
+        console.error('   Connection status - isConnected:', isConnected, 'hasCollection:', !!responsesCollection);
+
         res.status(500).json({
             error: 'Failed to save response',
-            details: error.message
+            details: error.message,
+            hint: 'Please try again in a moment'
         });
     }
 });
