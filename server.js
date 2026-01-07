@@ -116,6 +116,12 @@ app.get('/api/responses', async (req, res) => {
 // Submit new response
 app.post('/api/submit', async (req, res) => {
     try {
+        // Ensure MongoDB connection before saving
+        if (!isConnected) {
+            console.log('🔄 MongoDB not connected, attempting to connect...');
+            await connectDB();
+        }
+
         const newResponse = {
             id: Date.now(),
             timestamp: new Date().toISOString(),
@@ -124,10 +130,12 @@ app.post('/api/submit', async (req, res) => {
 
         if (responsesCollection) {
             // Save to MongoDB
+            console.log(`📝 Attempting to save response to MongoDB (ID: ${newResponse.id})`);
             await responsesCollection.insertOne(newResponse);
             console.log(`✅ New response saved to MongoDB (ID: ${newResponse.id})`);
         } else {
             // Fallback to JSON file
+            console.log('⚠️  MongoDB not available, using JSON fallback');
             const fs = require('fs').promises;
             const path = require('path');
             const dataFile = path.join(__dirname, 'survey-responses.json');
@@ -151,8 +159,12 @@ app.post('/api/submit', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error saving response:', error);
-        res.status(500).json({ error: 'Failed to save response' });
+        console.error('❌ Error saving response:', error.name, error.message);
+        console.error('   Full error:', error);
+        res.status(500).json({
+            error: 'Failed to save response',
+            details: error.message
+        });
     }
 });
 
