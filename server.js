@@ -91,25 +91,24 @@ async function connectDB() {
 // Get all responses (for admin view)
 app.get('/api/responses', async (req, res) => {
     try {
+        // Ensure MongoDB connection before querying
+        if (!isConnected) {
+            console.log('🔄 MongoDB not connected, attempting to connect...');
+            await connectDB();
+        }
+
         if (responsesCollection) {
+            console.log('📊 Fetching responses from MongoDB...');
             const responses = await responsesCollection.find({}).sort({ timestamp: -1 }).toArray();
+            console.log(`✅ Found ${responses.length} responses`);
             res.json({ responses });
         } else {
-            // Fallback to JSON file if MongoDB is not available
-            const fs = require('fs').promises;
-            const path = require('path');
-            const dataFile = path.join(__dirname, 'survey-responses.json');
-
-            try {
-                const data = await fs.readFile(dataFile, 'utf8');
-                res.json(JSON.parse(data));
-            } catch {
-                res.json({ responses: [] });
-            }
+            console.log('⚠️ MongoDB collection not available');
+            res.json({ responses: [] });
         }
     } catch (error) {
-        console.error('Error fetching responses:', error);
-        res.status(500).json({ error: 'Failed to read responses' });
+        console.error('❌ Error fetching responses:', error);
+        res.status(500).json({ error: 'Failed to read responses', details: error.message });
     }
 });
 
@@ -176,6 +175,12 @@ app.post('/api/submit', async (req, res) => {
 // Get statistics
 app.get('/api/stats', async (req, res) => {
     try {
+        // Ensure MongoDB connection before querying
+        if (!isConnected) {
+            console.log('🔄 MongoDB not connected, attempting to connect...');
+            await connectDB();
+        }
+
         if (responsesCollection) {
             const total = await responsesCollection.countDocuments();
 
@@ -186,16 +191,16 @@ app.get('/api/stats', async (req, res) => {
                 timestamp: { $gte: today.toISOString() }
             });
 
-            // Get film watch statistics
+            // Get film watch statistics (using new film IDs)
             const filmStats = await responsesCollection.aggregate([
                 {
                     $group: {
                         _id: null,
                         zootopia: { $sum: { $cond: [{ $eq: ['$zootopia_watched', 'yes'] }, 1, 0] } },
-                        coco: { $sum: { $cond: [{ $eq: ['$coco_watched', 'yes'] }, 1, 0] } },
+                        frozen2: { $sum: { $cond: [{ $eq: ['$frozen2_watched', 'yes'] }, 1, 0] } },
+                        mulan: { $sum: { $cond: [{ $eq: ['$mulan_watched', 'yes'] }, 1, 0] } },
                         greenbook: { $sum: { $cond: [{ $eq: ['$greenbook_watched', 'yes'] }, 1, 0] } },
-                        soul: { $sum: { $cond: [{ $eq: ['$soul_watched', 'yes'] }, 1, 0] } },
-                        freeguy: { $sum: { $cond: [{ $eq: ['$freeguy_watched', 'yes'] }, 1, 0] } }
+                        kungfupanda3: { $sum: { $cond: [{ $eq: ['$kungfupanda3_watched', 'yes'] }, 1, 0] } }
                     }
                 }
             ]).toArray();
