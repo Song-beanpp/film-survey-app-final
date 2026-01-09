@@ -222,22 +222,21 @@ app.get('/api/stats', async (req, res) => {
 // Export responses as CSV
 app.get('/api/export/csv', async (req, res) => {
     try {
+        // Ensure MongoDB connection before exporting
+        if (!isConnected) {
+            console.log('🔄 MongoDB not connected, attempting to connect...');
+            await connectDB();
+        }
+
         let responses = [];
 
         if (responsesCollection) {
+            console.log('📥 Fetching responses for CSV export...');
             responses = await responsesCollection.find({}).sort({ timestamp: -1 }).toArray();
+            console.log(`✅ Found ${responses.length} responses for export`);
         } else {
-            const fs = require('fs').promises;
-            const path = require('path');
-            const dataFile = path.join(__dirname, 'survey-responses.json');
-
-            try {
-                const data = await fs.readFile(dataFile, 'utf8');
-                const surveyData = JSON.parse(data);
-                responses = surveyData.responses || [];
-            } catch {
-                return res.status(404).send('No responses to export');
-            }
+            console.log('❌ MongoDB collection not available for export');
+            return res.status(503).send('Database connection unavailable. Please try again.');
         }
 
         if (responses.length === 0) {
