@@ -134,7 +134,7 @@
             <button class="btn btn-refresh" onclick="loadResponses()">
                 🔄 Refresh Data | 刷新数据
             </button>
-            <button class="btn btn-export" onclick="exportCSV()">
+            <button class="btn btn-export" onclick="exportData('csv')">
                 📥 Export CSV | 导出CSV
             </button>
             <button class="btn btn-export" onclick="exportJSON()">
@@ -143,48 +143,103 @@
             <a href="/" class="btn btn-next">
                 ← Back to Survey | 返回问卷
             </a>
+            <button class="btn" onclick="logout()" style="background: #e74c3c; color: white;">
+                🔒 Logout | 退出
+            </button>
         </div>
 
         <div class="responses-table" id="responsesContainer">
             <div class="empty-state">
                 <div class="empty-state-icon">📭</div>
-                <h3>No responses yet</h3>
-                <p>暂无问卷回复</p>
+                <h3>Loading data...</h3>
+                <p>正在加载数据...</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="background: #f4f1e8; padding: 40px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%; border: 2px solid var(--vintage-gold);">
+            <h2 style="color: var(--vintage-brown); margin-bottom: 20px;">Admin Access Required</h2>
+            <p style="margin-bottom: 20px;">请输入管理员访问代码以查看数据</p>
+            <input type="password" id="adminPasswordInput" placeholder="Access Code (访问代码)" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px;">
+            <button onclick="login()" class="btn btn-next" style="width: 100%;">Login | 登录</button>
         </div>
     </div>
 
     <script>
         let allResponses = [];
 
-        // Load responses on page load
-        document.addEventListener('DOMContentLoaded', loadResponses);
+        // Check auth on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('adminToken');
+            if (token) {
+                document.getElementById('loginModal').style.display = 'none';
+                loadResponses();
+            }
+        });
+
+        function login() {
+            const input = document.getElementById('adminPasswordInput');
+            const token = input.value.trim();
+            if (token) {
+                localStorage.setItem('adminToken', token);
+                document.getElementById('loginModal').style.display = 'none';
+                loadResponses();
+            } else {
+                alert('Please enter a valid code');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            document.getElementById('loginModal').style.display = 'flex';
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('responsesContainer').innerHTML = ''; // Clear data
+        }
 
         async function loadResponses() {
             try {
-                const response = await fetch('/api/responses');
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/responses', {
+                    headers: {
+                        'x-admin-password': token
+                    }
+                });
+
+                if (response.status === 401) {
+                    showToast('Authentication failed. Please check your code.', 'error');
+                    logout();
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
                 const data = await response.json();
                 allResponses = data.responses || [];
 
                 updateStats();
                 displayResponses();
+                showToast('Data loaded successfully');
             } catch (error) {
                 console.error('Error loading responses:', error);
-                showToast('Failed to load responses', 'error');
+                
+                // Determine if it was an auth error that wasn't caught above or network error
+                showToast('Failed to load data. Please check connection.', 'error');
             }
         }
 
         function updateStats() {
             document.getElementById('totalResponses').textContent = allResponses.length;
 
-            // Count today's responses
             const today = new Date().toDateString();
             const todayCount = allResponses.filter(r =>
                 new Date(r.timestamp).toDateString() === today
             ).length;
             document.getElementById('todayResponses').textContent = todayCount;
 
-            // Last updated time
             const now = new Date();
             document.getElementById('lastUpdated').textContent =
                 now.getHours().toString().padStart(2, '0') + ':' +
@@ -205,7 +260,6 @@
                 return;
             }
 
-            // Create table
             let html = '<table><thead><tr>';
             html += '<th>ID</th>';
             html += '<th>Timestamp<br>提交时间</th>';
@@ -247,7 +301,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 1000;
+                z-index: 2500;
                 padding: 20px;
             `;
 
@@ -259,11 +313,12 @@
                 max-width: 800px;
                 max-height: 80vh;
                 overflow-y: auto;
+                width: 100%;
             `;
 
             content.innerHTML = `
                 <h2 style="margin-bottom: 20px;">Response Details - #${response.id}</h2>
-                <pre style="white-space: pre-wrap; font-size: 14px; line-height: 1.6;">
+                <pre style="white-space: pre-wrap; font-size: 14px; line-height: 1.6; background: #fff; padding: 15px; border-radius: 5px;">
 ${JSON.stringify(response, null, 2)}
                 </pre>
                 <button class="btn btn-next" onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px;">
@@ -279,8 +334,18 @@ ${JSON.stringify(response, null, 2)}
             });
         }
 
-        function exportCSV() {
-            window.location.href = '/api/export/csv';
+        async function exportData(type) {
+             const token = localStorage.getItem('adminToken');
+             // For downloads, we can't easily add headers to a window.location navigation.
+             // We'll fetch the blob then download it, or use the query param fallback.
+             // Using query param is easier for simple downloads.
+             if(type === 'csv') {
+                 if (token) {
+                    window.location.href = `/api/export/csv?code=${encodeURIComponent(token)}`;
+                 } else {
+                     showToast('Please login first', 'error');
+                 }
+             }
         }
 
         function exportJSON() {
@@ -304,6 +369,13 @@ ${JSON.stringify(response, null, 2)}
                 toast.remove();
             }, 3000);
         }
+        
+        // Handle Enter key in password input
+        document.getElementById('adminPasswordInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
     </script>
 </body>
 

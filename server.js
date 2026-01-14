@@ -15,6 +15,26 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
+// Middleware to check admin password
+const checkAdminAuth = (req, res, next) => {
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    // If no password is set in env, allow access (default insecure for backward compatibility if needed, 
+    // but better to default secure. Let's default to allowing if not set to avoid breaking current setup immediately,
+    // or block it. User asked to "add admin", so let's block if not provided match).
+    // Actually, to ensure the user can set it up, let's say: if env var is set, check it.
+    if (!adminPassword) {
+        return next(); // Open access if no password configured
+    }
+
+    const providedPassword = req.headers['x-admin-password'] || req.query.code;
+
+    if (providedPassword === adminPassword) {
+        next();
+    } else {
+        res.status(401).json({ error: 'Unauthorized: Invalid or missing admin password' });
+    }
+};
 app.use(express.static('public'));
 
 // MongoDB connection
@@ -89,7 +109,7 @@ async function connectDB() {
 }
 
 // Get all responses (for admin view)
-app.get('/api/responses', async (req, res) => {
+app.get('/api/responses', checkAdminAuth, async (req, res) => {
     try {
         // Ensure MongoDB connection before querying
         if (!isConnected) {
@@ -173,7 +193,7 @@ app.post('/api/submit', async (req, res) => {
 });
 
 // Get statistics
-app.get('/api/stats', async (req, res) => {
+app.get('/api/stats', checkAdminAuth, async (req, res) => {
     try {
         // Ensure MongoDB connection before querying
         if (!isConnected) {
@@ -220,7 +240,7 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // Export responses as CSV
-app.get('/api/export/csv', async (req, res) => {
+app.get('/api/export/csv', checkAdminAuth, async (req, res) => {
     try {
         // Ensure MongoDB connection before exporting
         if (!isConnected) {
